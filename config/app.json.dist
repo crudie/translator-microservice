@@ -1,0 +1,5 @@
+{
+  "config": {
+    "redis": "tcp://127.0.0.1?password=abcdef123&database=0"
+  }
+}
