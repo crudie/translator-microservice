@@ -3,6 +3,7 @@
 namespace Application\Controller;
 
 use Application\Transformer\LocaleTransformer;
+use Domain\Model\Locale\LocaleRepository;
 use Silex\Api\ControllerProviderInterface;
 use Silex\Application;
 use Silex\ControllerCollection;
@@ -11,25 +12,28 @@ use Silex\ControllerCollection;
 /**
  * Locale controller
  */
-class LocaleController implements ControllerProviderInterface
+class LocaleController
 {
     /**
-     * Create controller collection
-     *
-     * @param Application $app
-     *
-     * @return ControllerCollection
+     * @var LocaleRepository
      */
-    public function connect(Application $app)
+    private $repository;
+
+    /**
+     * LocaleController constructor.
+     *
+     * @param LocaleRepository $repository
+     */
+    public function __construct(LocaleRepository $repository)
     {
-        $controllers = $app['controllers_factory'];
+        $this->repository = $repository;
+    }
 
-        $controllers->get('/', function () use ($app) {
-            $locales = $app['repository.locale']->findAll();
-
-            return LocaleTransformer::transformAll($locales);
-        });
-
-        return $controllers;
+    /**
+     * Return a list of locales
+     */
+    public function listAction()
+    {
+        return LocaleTransformer::transformAll($this->repository->findAll());
     }
 }

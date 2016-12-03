@@ -14,6 +14,7 @@ if (isset($_ENV['env']) && ($env = $_ENV['env'])) {
 }
 
 $app->register(new ConfigServiceProvider(__DIR__ . '/../config', [], 'app'));
+$app->register(new Silex\Provider\ServiceControllerServiceProvider());
 
 // Define result view
 $app->view(function (array $controllerResult) use ($app) {
@@ -46,13 +47,22 @@ $app['repository.locale'] = function () use ($app) {
 $app['repository.translation'] = function () use ($app) {
     return new \Application\Repository\TranslationRedisRepository($app['service.redis']);
 };
+$app['controller.locale'] = function () use ($app) {
+    return new \Application\Controller\LocaleController($app['repository.locale']);
+};
+$app['controller.translation'] = function () use ($app) {
+    return new \Application\Controller\TranslationController($app['repository.translation'], $app['repository.locale']);
+};
 
 $app->get('/', function () {
     return [];
 });
 
-$app->mount('/locales', new Application\Controller\LocaleController());
-$app->mount('/translations', new Application\Controller\TranslationController());
+$app->get('/locales', 'controller.locale:listAction');
+$app->get('/translations/{localeName}', 'controller.translation:listAction');
+$app->get('/translations/{localeName}/{words}', 'controller.translation:translateAction')->convert('words', function ($string) {
+    return explode('&', $string);
+});
 
 // Return app for tests
 if ($app['env'] == 'test') {
