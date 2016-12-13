@@ -90,4 +90,4 @@ In order to run them, copy and rename phpunit.xml.dist, specify "app_dir" and "s
 
 ## Future
 
-There will be docket integration in few days :)
+There will be docker integration in few days :)
